@@ -6,53 +6,59 @@ import koaStatic from "koa-static";
 import views from "koa-views";
 import router from "./routes";
 import cors from "@koa/cors";
-import session from "koa-session";
-import jwt from "koa-jwt";
+import koaJwt from "koa-jwt";
+import redis from "./utils/redis";
+import config from "./config";
+import sequelize, { Misc, Utils } from "./utils/sequelize";
 
-const app = new Koa();
-require("koa-onerror")(app);
+(async () => {
+    try {
+        console.log("连接到 Mysql...");
+        await sequelize.authenticate();
+        await sequelize.sync();
+        if (Misc.findByPk("maxNum") === null) {
+            await Misc.create({ id: "maxNum", content: "0" });
+        }
+    } catch (error) {
+        console.error('Mysql 连接失败!', error);
+    }
 
-app.use(bodyParser({
-    enableTypes: ["json", "form", "text"]
-}));
+    try {
+        console.log("连接到 Redis...");
+        await redis.connect();
+    } catch (_e) {
+        const e = _e as Error;
+        console.error("Redis 连接失败", e.message);
+        process.exit(0);
+    }
 
-app.use(json());
+    const app = new Koa();
+    require("koa-onerror")(app);
 
-app.use(logger());
+    app.use(bodyParser({
+        enableTypes: ["json", "form", "text"]
+    }));
 
-app.use(koaStatic(__dirname + "public"));
+    app.use(json());
 
-app.use(views(__dirname + '/views', {
-    extension: "pug"
-}));
+    app.use(logger());
 
-app.use(jwt({
-    secret: Math.random().toString()
-}).unless({
-    path: [/^\/auth/]
-}));
+    app.use(koaStatic(__dirname + "public"));
 
-app.use(cors());
+    app.use(views(__dirname + '/views', {
+        extension: "pug"
+    }));
 
-app.keys = [Math.random().toString()];
+    app.use(cors());
 
-app.use(session({
-    key: 'koa.sess', /** (string) cookie key (default is koa.sess) */
-    /** (number || 'session') maxAge in ms (default is 1 days) */
-    /** 'session' will result in a cookie that expires when session/browser is closed */
-    /** Warning: If a session cookie is stolen, this cookie will never expire */
-    maxAge: 86400000,
-    autoCommit: true, /** (boolean) automatically commit headers (default true) */
-    overwrite: true, /** (boolean) can overwrite or not (default true) */
-    httpOnly: true, /** (boolean) httpOnly or not (default true) */
-    signed: true, /** (boolean) signed or not (default true) */
-    rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
-    renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
-    secure: false, /** (boolean) secure cookie*/
-    /** (string) session cookie sameSite options (default null, don't set it) */
-}, app));
+    app.use(koaJwt({
+        secret: config.koaJwt.secret
+    }).unless({
+        path: [/^\/auth/]
+    }));
 
-app.use(router.routes());
+    app.use(router.routes());
 
-app.listen(3000);
-console.log('app started at port 3000...');
+    app.listen(3000);
+    console.log('app started at port 3000...');
+})();
