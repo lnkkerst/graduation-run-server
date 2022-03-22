@@ -99,7 +99,7 @@ router.post("/info", async (ctx, next) => {
         user.name = body.name;
         user.phone = body.phone;
         user.sex = body.sex;
-        user.id =body.id;
+        user.id = body.id;
         user.save();
         ctx.body = {
             code: 0,
@@ -116,6 +116,58 @@ router.post("/info", async (ctx, next) => {
                 msg: "发生未知错误"
             }
         }
+    }
+    await next();
+});
+
+router.post("/signup", async (ctx, next) => {
+    try {
+        const user = (await User.findByPk(ctx.state.token.username)) as UserInstance;
+        user.signup = true;
+        user.save();
+        ctx.body = {
+            code: 0,
+            data: {
+                msg: "报名成功"
+            }
+        }
+    } catch(_e) {
+        ctx.body = {
+            code: 1,
+            data: {
+                msg: "发生未知错误"
+            }
+        }
+        const e = _e as Error;
+        console.error(e.message);
+        await next();
+        return 
+    }
+    await next();
+});
+
+router.delete("/signup", async (ctx, next) => {
+    try {
+        const user = (await User.findByPk(ctx.state.token.username)) as UserInstance;
+        user.signup = false;
+        user.save();
+        ctx.body = {
+            code: 0,
+            data: {
+                msg: "取消报名成功"
+            }
+        }
+    } catch(_e) {
+        ctx.body = {
+            code: 1,
+            data: {
+                msg: "发生未知错误"
+            }
+        }
+        const e = _e as Error;
+        console.error(e.message);
+        await next();
+        return 
     }
     await next();
 });

@@ -144,7 +144,8 @@ router.post("/user", async (ctx, next) => {
                 branch: "",
                 contact: "",
                 cPhone: "",
-                phone: ""
+                phone: "",
+                signup: false
             });
         }
         ctx.body = {

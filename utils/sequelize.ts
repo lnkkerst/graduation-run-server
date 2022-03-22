@@ -13,6 +13,7 @@ export type UserAttr = {
     id: string;
     contact: string;
     cPhone: string;
+    signup: boolean;
 };
 
 export interface UserInstance extends Model<UserAttr>, UserAttr { };
@@ -48,7 +49,8 @@ export const User = sequelize.define<UserInstance>("user", {
     phone: DataTypes.STRING,
     id: DataTypes.STRING,
     contact: DataTypes.STRING,
-    cPhone: DataTypes.STRING
+    cPhone: DataTypes.STRING,
+    signup: DataTypes.BOOLEAN
 });
 
 export const Misc = sequelize.define<MiscInstance>("misc", {

@@ -16,7 +16,7 @@ import sequelize, { Misc, Utils } from "./utils/sequelize";
         console.log("连接到 Mysql...");
         await sequelize.authenticate();
         await sequelize.sync();
-        if (Misc.findByPk("maxNum") === null) {
+        if (await Misc.findByPk("maxNum") === null) {
             await Misc.create({ id: "maxNum", content: "0" });
         }
     } catch (error) {
