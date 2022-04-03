@@ -13,42 +13,6 @@ const router = new Router();
 
 router.prefix("/auth");
 
-// router.get("/uuid", async (ctx, next) => {
-//     ctx.body = {
-//         code: 0,
-//         data: {
-//             uuid: uuidv4()
-//         }
-//     };
-//     await next();
-// })
-
-// router.all("/:name(^(?!uuid).*?$)", async (ctx, next) => {
-//     if (!("uuid" in ctx.request.query)) {
-//         ctx.body = {
-//             code: 1,
-//             data: {
-//                 msg: "No uuid"
-//             }
-//         }
-//     } else {
-//         await next();
-//     }
-// });
-
-// router.post("/:name", async (ctx, next) => {
-//     if (!("uuid" in ctx.request.body)) {
-//         ctx.body = {
-//             code: 1,
-//             data: {
-//                 msg: "No uuid"
-//             }
-//         }
-//     } else {
-//         await next();
-//     }
-// })
-
 router.get("/captcha", async (ctx, next) => {
     const captcha = svgCaptcha.create({
         background: "white"
@@ -67,7 +31,7 @@ router.get("/captcha", async (ctx, next) => {
     await next();
 });
 
-router.post("/user", async (ctx, next) => {
+router.post("/:name", async (ctx, next) => {
     const captcha = ctx.request.body.captcha as string;
     const username = ctx.request.body.username as string;
     const password = ctx.request.body.password as string;
@@ -116,6 +80,16 @@ router.post("/user", async (ctx, next) => {
         await next();
         return;
     }
+    await next();
+});
+
+router.post("/user", async (ctx, next) => {
+    if (ctx.body !== undefined && ctx.body.code === 1) {
+        await next();
+        return;
+    }
+    const username = ctx.request.body.username as string;
+    const password = ctx.request.body.password as string;
     const isduRes = await axios.post(
         "https://sduonline.cn/isduapi/api/auth/login/system",
         qs.stringify({
@@ -152,6 +126,39 @@ router.post("/user", async (ctx, next) => {
             code: 0,
             data: {
                 token: token
+            }
+        }
+    } else {
+        ctx.body = {
+            code: 1,
+            data: {
+                type: 3,
+                msg: "Invaild username or password"
+            }
+        }
+    }
+    ctx.state.captcha = true;
+    await next();
+});
+
+router.post("/admin", async (ctx, next) => {
+    if (ctx.body !== undefined && ctx.body.code === 1) {
+        await next();
+        return;
+    }
+    const username = ctx.request.body.username as string;
+    const password = ctx.request.body.password as string;
+    if (username === "admin" && password === "1145141919810") {
+        const token = jwt.sign({
+            username: username
+        }, config.koaJwt.secret[0], {
+            expiresIn: "240h"
+        });
+        ctx.type = "json";
+        ctx.body = {
+            code: 0,
+            data: {
+                admin_token: token
             }
         }
     } else {

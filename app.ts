@@ -19,8 +19,10 @@ import sequelize, { Misc, Utils } from "./utils/sequelize";
         if (await Misc.findByPk("maxNum") === null) {
             await Misc.create({ id: "maxNum", content: "0" });
         }
-    } catch (error) {
-        console.error('Mysql 连接失败!', error);
+    } catch (_e) {
+        const e = _e as Error;
+        console.error('Mysql 连接失败!', e.message);
+        process.exit(1);
     }
 
     try {
@@ -29,9 +31,9 @@ import sequelize, { Misc, Utils } from "./utils/sequelize";
     } catch (_e) {
         const e = _e as Error;
         console.error("Redis 连接失败", e.message);
-        process.exit(0);
+        process.exit(1);
     }
-
+    
     const app = new Koa();
     require("koa-onerror")(app);
 

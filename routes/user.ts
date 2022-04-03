@@ -8,6 +8,20 @@ const router = new Router();
 router.prefix("/user");
 
 router.all("/:name", async (ctx, next) => {
+    try {
+        await next();
+    } catch(_e) {
+        const e = _e as Error;
+        ctx.body = {
+            code: 1,
+            data: {
+                msg: "Error!"
+            }
+        }
+    }
+});
+
+router.all("/:name", async (ctx, next) => {
     ctx.state.token = jwt.decode(ctx.headers.authorization?.split(' ')[1] as string);
     await next();
 });
