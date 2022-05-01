@@ -146,7 +146,7 @@ router.post("/admin", async (ctx, next) => {
         await next();
         return;
     }
-    const username = ctx.request.body.username as string;
+    const username = (ctx.request.body.username as string).trim();
     const password = ctx.request.body.password as string;
     if (username === "admin" && password === "1145141919810") {
         const token = jwt.sign({

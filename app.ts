@@ -10,6 +10,7 @@ import koaJwt from "koa-jwt";
 import redis from "./utils/redis";
 import config from "./config";
 import sequelize, { Misc, Utils } from "./utils/sequelize";
+import {resolve} from "path";
 
 (async () => {
     try {
@@ -45,7 +46,7 @@ import sequelize, { Misc, Utils } from "./utils/sequelize";
 
     app.use(logger());
 
-    app.use(koaStatic(__dirname + "public"));
+    app.use(koaStatic(resolve(__dirname + "public")));
 
     app.use(views(__dirname + '/views', {
         extension: "pug"

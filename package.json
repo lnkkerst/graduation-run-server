@@ -16,6 +16,7 @@
   "dependencies": {
     "@koa/cors": "^3.2.0",
     "axios": "^0.26.1",
+    "json2csv": "^5.0.7",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
@@ -35,6 +36,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/json2csv": "^5.0.3",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/koa": "^2.13.4",
     "@types/koa-bodyparser": "^4.3.6",
