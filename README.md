@@ -2,6 +2,8 @@
 
 山东大学毕业跑活动报名后端
 
+~~黑历史~~
+
 ## 初始化
 
 ```bash
@@ -26,7 +28,7 @@ yarn nodemon
 yarn start
 ```
 
-## 使用 pm2
+## pm2
 
 ```bash
 yarn pm
